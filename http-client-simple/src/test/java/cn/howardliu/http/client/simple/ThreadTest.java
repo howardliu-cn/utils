@@ -30,23 +30,23 @@ public class ThreadTest {
         PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
         connManager.setMaxTotal(200);//设置最大连接数200
         connManager.setDefaultMaxPerRoute(3);//设置每个路由默认连接数
-        HttpHost host = new HttpHost("webservice.webxml.com.cn");//针对的主机
+        HttpHost host = new HttpHost("www.baidu.com");//针对的主机
         connManager.setMaxPerRoute(new HttpRoute(host), 5);//每个路由器对每个服务器允许最大5个并发访问
-        CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connManager).build();
         String[] urisToGet = {
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo",
-                "http://webservice.webxml.com.cn/WebServices/MobileCodeWS.asmx/getDatabaseInfo"
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com",
+                "http://www.baidu.com"
         };
         GetThread[] threads = new GetThread[urisToGet.length];
         for (int i = 0; i < threads.length; i++) {
+            CloseableHttpClient httpClient = HttpClients.custom().setConnectionManager(connManager).build();
             HttpGet httpget = new HttpGet(urisToGet[i]);
             threads[i] = new GetThread(httpClient, httpget);
         }

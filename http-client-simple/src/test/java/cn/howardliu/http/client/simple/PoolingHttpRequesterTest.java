@@ -17,24 +17,26 @@ public class PoolingHttpRequesterTest {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Test
+    public void testGet() throws Exception {
+        logger.debug(PoolingHttpRequester.getHttpRequester().get("http://www.baidu.com"));
+        logger.debug(PoolingHttpRequester.getHttpRequester().get("http://www.baidu.com"));
+    }
+
+    @Test
     public void testGetHttpClient() throws Exception {
-        HttpRequester poolingHttpRequester = PoolingHttpRequester.getHttpRequester()
-                .setConnPooMaxPerRoute(new HttpRoute(new HttpHost("www.baidu.com")), 5);
-        int count = 100;
+        HttpRequester poolingHttpRequester = PoolingHttpRequester.getHttpRequester();
+        int count = 2000;
         Map<Integer, Integer> map = new HashMap<>(count, 1);
         CountDownLatch countDownLatch = new CountDownLatch(count);
         for (int i = 0; i < count; i++) {
             new Thread(() -> {
-                try (CloseableHttpClient client = poolingHttpRequester.getHttpClient()) {
-                    if (map.containsKey(client.hashCode())) {
-                        map.put(client.hashCode(), map.get(client.hashCode()) + 1);
-                    } else {
-                        map.put(client.hashCode(), 1);
-                    }
-                    logger.debug("生成的http client为：" + client.toString());
-                } catch (IOException e) {
-                    logger.error("IO管理失败", e);
+                CloseableHttpClient client = poolingHttpRequester.getHttpClient();
+                if (map.containsKey(client.hashCode())) {
+                    map.put(client.hashCode(), map.get(client.hashCode()) + 1);
+                } else {
+                    map.put(client.hashCode(), 1);
                 }
+                logger.debug("生成的http client为：" + client.toString());
                 try {
                     poolingHttpRequester.get("http://www.baidu.com");
                 } catch (URISyntaxException | IOException ignored) {

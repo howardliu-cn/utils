@@ -213,7 +213,7 @@ public abstract class HttpRequester {
      * @throws java.io.IOException
      * @throws java.net.URISyntaxException 如果返回为301或302跳转，则会调用GET请求，如果返回的url不正确，会抛出该异常。
      */
-    private String execute(CloseableHttpClient client, HttpHost httpHost, HttpRequest httpRequest)
+    protected String execute(CloseableHttpClient client, HttpHost httpHost, HttpRequest httpRequest)
             throws IOException, URISyntaxException {
         String respText = null;
         try (CloseableHttpResponse response = client.execute(httpHost, httpRequest)) {
@@ -232,7 +232,7 @@ public abstract class HttpRequester {
                 // EntityUtils.toString获取response返回的content，首先获取响应头的字符集，如果响应头中无定义，使用UTF-8字符集。
                 respText = EntityUtils.toString(response.getEntity(), Consts.UTF_8);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("the message entity of this response:\n\r" + respText);
+//                    logger.debug("the message entity of this response:\n\r" + respText);
                 }
             } else if (statusLine.getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY
                     || statusLine.getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
