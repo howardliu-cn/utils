@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>utils</artifactId>
+        <groupId>cn.howardliu</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>http-client-simple</artifactId>
+    <packaging>jar</packaging>
+    <description>使用apache http client的简单封装工具</description>
+    <properties>
+        <dependency.httpcomponents.version>4.5.1</dependency.httpcomponents.version>
+        <dependency.commons-lang3.version>3.4</dependency.commons-lang3.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>${dependency.httpcomponents.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${dependency.commons-lang3.version}</version>
+        </dependency>
+    </dependencies>
+</project>
