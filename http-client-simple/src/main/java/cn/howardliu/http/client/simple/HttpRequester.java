@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
@@ -202,6 +203,32 @@ public abstract class HttpRequester {
         return respText;
     }
 
+    public String delete(String url) throws URISyntaxException, IOException {
+        // 1. 验证输入url的有效性：url没有有效的host或url为相对路径，则url无效。
+        URI uri = (new URIBuilder(url)).build();
+        HttpHost httpHost = URIUtils.extractHost(uri);
+        if (httpHost == null) {
+            throw new IllegalArgumentException("缺少有效的HOST");
+        }
+        String respText;
+        // 2. 创建HttpClient对象
+        try (CloseableHttpClient client = getHttpClient()) {
+            // 3. 创建请求方法的实例，并指定请求URL。如果需要发送GET请求，创建HttpGet对象；如果需要发送POST请求，创建HttpPost对象。
+            HttpDelete httpDelete = new HttpDelete(uri);
+            if (logger.isDebugEnabled()) {
+                logger.debug("executing request: ", httpDelete.getRequestLine());
+            }
+            httpDelete.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.withCharset("UTF-8").getMimeType());
+            Header[] headers = httpDelete.getAllHeaders();
+            for (Header h : headers) {
+                logger.info(h.getName() + "=" + h.getValue());
+            }
+            // 5. 调用HttpClient对象的execute(HttpUriRequest request)发送请求，该方法返回一个HttpResponse。
+            respText = execute(client, httpHost, httpDelete);
+        }
+        return respText;
+    }
+
 
     /**
      * 通过client，以httpRequest为请求参数，调用httpHost，并解析响应，返回{@code java.lang.String} 类型的响应内容。
@@ -232,7 +259,7 @@ public abstract class HttpRequester {
                 // EntityUtils.toString获取response返回的content，首先获取响应头的字符集，如果响应头中无定义，使用UTF-8字符集。
                 respText = EntityUtils.toString(response.getEntity(), Consts.UTF_8);
                 if (logger.isDebugEnabled()) {
-//                    logger.debug("the message entity of this response:\n\r" + respText);
+                    logger.debug("the message entity of this response:\n\r" + respText);
                 }
             } else if (statusLine.getStatusCode() == HttpStatus.SC_MOVED_PERMANENTLY
                     || statusLine.getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {

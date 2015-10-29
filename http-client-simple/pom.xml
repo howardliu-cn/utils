@@ -14,6 +14,7 @@
     <properties>
         <dependency.httpcomponents.version>4.5.1</dependency.httpcomponents.version>
         <dependency.commons-lang3.version>3.4</dependency.commons-lang3.version>
+        <dependency.json-lib.version>2.4</dependency.json-lib.version>
     </properties>
     <dependencies>
         <dependency>
@@ -25,6 +26,13 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${dependency.commons-lang3.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.json-lib</groupId>
+            <artifactId>json-lib</artifactId>
+            <classifier>jdk15</classifier>
+            <version>${dependency.json-lib.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
