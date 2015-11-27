@@ -9,6 +9,7 @@
     <modules>
         <module>http-client-simple</module>
         <module>solr-synonym-extension</module>
+        <module>user-list</module>
     </modules>
     <packaging>pom</packaging>
     <developers>
