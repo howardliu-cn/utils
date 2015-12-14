@@ -191,7 +191,8 @@ public abstract class HttpRequester {
             if (contentType != null) {
                 httpPost.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
             } else {
-                httpPost.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.withCharset("UTF-8").getMimeType());
+                // httpPost.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.withCharset("UTF-8").getMimeType());
+                httpPost.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
             }
             Header[] headers = httpPost.getAllHeaders();
             for (Header h : headers) {
@@ -218,7 +219,8 @@ public abstract class HttpRequester {
             if (logger.isDebugEnabled()) {
                 logger.debug("executing request: ", httpDelete.getRequestLine());
             }
-            httpDelete.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.withCharset("UTF-8").getMimeType());
+            // httpDelete.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.withCharset("UTF-8").getMimeType());
+            httpDelete.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
             Header[] headers = httpDelete.getAllHeaders();
             for (Header h : headers) {
                 logger.info(h.getName() + "=" + h.getValue());
