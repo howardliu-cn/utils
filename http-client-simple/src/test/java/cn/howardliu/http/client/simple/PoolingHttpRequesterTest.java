@@ -24,24 +24,27 @@ public class PoolingHttpRequesterTest {
 
     @Test
     public void testGetHttpClient() throws Exception {
-        HttpRequester poolingHttpRequester = PoolingHttpRequester.getHttpRequester();
+        final HttpRequester poolingHttpRequester = PoolingHttpRequester.getHttpRequester();
         int count = 2000;
-        Map<Integer, Integer> map = new HashMap<>(count, 1);
-        CountDownLatch countDownLatch = new CountDownLatch(count);
+        final Map<Integer, Integer> map = new HashMap<>(count, 1);
+        final CountDownLatch countDownLatch = new CountDownLatch(count);
         for (int i = 0; i < count; i++) {
-            new Thread(() -> {
-                CloseableHttpClient client = poolingHttpRequester.getHttpClient();
-                if (map.containsKey(client.hashCode())) {
-                    map.put(client.hashCode(), map.get(client.hashCode()) + 1);
-                } else {
-                    map.put(client.hashCode(), 1);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    CloseableHttpClient client = poolingHttpRequester.getHttpClient();
+                    if (map.containsKey(client.hashCode())) {
+                        map.put(client.hashCode(), map.get(client.hashCode()) + 1);
+                    } else {
+                        map.put(client.hashCode(), 1);
+                    }
+                    logger.debug("生成的http client为：" + client.toString());
+                    try {
+                        poolingHttpRequester.get("http://www.baidu.com");
+                    } catch (URISyntaxException | IOException ignored) {
+                    }
+                    countDownLatch.countDown();
                 }
-                logger.debug("生成的http client为：" + client.toString());
-                try {
-                    poolingHttpRequester.get("http://www.baidu.com");
-                } catch (URISyntaxException | IOException ignored) {
-                }
-                countDownLatch.countDown();
             }).start();
         }
         countDownLatch.await();

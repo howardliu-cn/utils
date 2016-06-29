@@ -20,17 +20,19 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
- * <br/>create at 15-10-13
+ * <br/>create at 16-4-8
  *
  * @author liuxh
  * @since 1.0.0
  */
 public abstract class HttpRequester {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private static final String DEFAULT_CONTENT_TYPE = ContentType.APPLICATION_JSON.getMimeType();
 
     abstract CloseableHttpClient getHttpClient();
 
@@ -43,7 +45,7 @@ public abstract class HttpRequester {
      * @throws java.io.IOException
      */
     public String get(String url) throws URISyntaxException, IOException {
-        return get(url, Collections.emptyList());
+        return get(url, new ArrayList<NameValuePair>());
     }
 
     /**
@@ -57,9 +59,9 @@ public abstract class HttpRequester {
      */
     public String get(String url, Map<String, String> params) throws URISyntaxException, IOException {
         List<NameValuePair> nameValuePairs = new ArrayList<>(params.size());
-        nameValuePairs.addAll(params.entrySet().stream()
-                .map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList()));
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        }
         return get(url, nameValuePairs);
     }
 
@@ -192,6 +194,8 @@ public abstract class HttpRequester {
                 httpPost.setHeader(HttpHeaders.CONTENT_TYPE, contentType);
             } else {
                 // httpPost.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.withCharset("UTF-8").getMimeType());
+                // 1. 当前系统中多数调用使用http+json方式
+                // 2. 有部分系统使用netty服务器，不接受非application/json以外的其他方式
                 httpPost.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType());
             }
             Header[] headers = httpPost.getAllHeaders();
@@ -202,6 +206,72 @@ public abstract class HttpRequester {
             respText = execute(client, httpHost, httpPost);
         }
         return respText;
+    }
+
+    /**
+     * 以form表单方式请求url
+     *
+     * @param url    请求地址
+     * @param params 请求参数
+     * @return url响应结果，java.lang.String类型。
+     * @throws java.net.URISyntaxException 输入的url不合法
+     * @throws java.io.IOException
+     */
+    public String form(String url, Map<String, String> params) throws URISyntaxException, IOException {
+        return this.form(url, params, DEFAULT_CONTENT_TYPE);
+    }
+
+    /**
+     * 以form表单方式请求url
+     *
+     * @param url         请求地址
+     * @param params      请求参数
+     * @param contentType 请求数据类型
+     * @return url响应结果，java.lang.String类型。
+     * @throws java.net.URISyntaxException 输入的url不合法
+     * @throws java.io.IOException
+     */
+    public String form(String url, Map<String, String> params, String contentType)
+            throws URISyntaxException, IOException {
+        List<NameValuePair> nameValuePairs = new ArrayList<>(params.size());
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            nameValuePairs.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        }
+        return this.form(url, nameValuePairs, contentType);
+    }
+
+    /**
+     * 以form表单方式请求url
+     *
+     * @param url    请求地址
+     * @param params 请求参数
+     * @return url响应结果，java.lang.String类型。
+     * @throws java.net.URISyntaxException 输入的url不合法
+     * @throws java.io.IOException
+     */
+    public String form(String url, List<NameValuePair> params) throws URISyntaxException, IOException {
+        return this.form(url, params, DEFAULT_CONTENT_TYPE);
+    }
+
+    /**
+     * 以form方式请求url
+     *
+     * @param url         请求地址
+     * @param params      请求参数
+     * @param contentType 请求数据类型
+     * @return url响应结果，java.lang.String类型。
+     * @throws java.net.URISyntaxException 输入的url不合法
+     * @throws java.io.IOException
+     */
+    public String form(String url, List<NameValuePair> params, String contentType)
+            throws URISyntaxException, IOException {
+        HttpEntity httpEntity;
+        if (params == null) {
+            httpEntity = new StringEntity("", Consts.UTF_8);
+        } else {
+            httpEntity = new UrlEncodedFormEntity(params, Consts.UTF_8);
+        }
+        return this.post(url, httpEntity, contentType);
     }
 
     public String delete(String url) throws URISyntaxException, IOException {
@@ -231,7 +301,6 @@ public abstract class HttpRequester {
         return respText;
     }
 
-
     /**
      * 通过client，以httpRequest为请求参数，调用httpHost，并解析响应，返回{@code java.lang.String} 类型的响应内容。
      *
@@ -249,8 +318,9 @@ public abstract class HttpRequester {
             // 调用HttpResponse的getAllHeaders()、getHeaders(String name)等方法可获取服务器的响应头；
             Header[] headers = response.getAllHeaders();
             if (logger.isDebugEnabled()) {
-                Arrays.stream(headers).forEach(header ->
-                        logger.debug("the headers of this message ：{} = {}", header.getName(), header.getValue()));
+                for (Header header : headers) {
+                    logger.debug("the headers of this message ：{} = {}", header.getName(), header.getValue());
+                }
             }
             StatusLine statusLine = response.getStatusLine();
             if (logger.isDebugEnabled()) {

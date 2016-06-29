@@ -43,6 +43,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * TokenFilterFactory and ManagedResource implementation for
@@ -68,7 +69,7 @@ public class ManagedSynonymFilterFactory extends BaseManagedTokenFilterFactory {
          * mappings for the specific case is returned.
          */
         Set<String> getMappings(boolean ignoreCase, String key) {
-            Set<String> synMappings;
+            final Set<String> synMappings;
             if (ignoreCase) {
                 // TODO: should we return the mapped values in all lower-case here?
                 if (mappings.size() == 1) {
@@ -76,7 +77,12 @@ public class ManagedSynonymFilterFactory extends BaseManagedTokenFilterFactory {
                     return mappings.values().iterator().next();
                 }
                 synMappings = new TreeSet<>();
-                mappings.values().forEach(synMappings::addAll);
+                mappings.values().forEach(new Consumer<Set<String>>() {
+                    @Override
+                    public void accept(Set<String> strings) {
+                        synMappings.addAll(strings);
+                    }
+                });
             } else {
                 synMappings = mappings.get(key);
             }
