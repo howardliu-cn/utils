@@ -12,7 +12,7 @@
     <packaging>jar</packaging>
     <description>使用apache http client的简单封装工具</description>
     <properties>
-        <dependency.httpcomponents.version>4.5.1</dependency.httpcomponents.version>
+        <dependency.httpcomponents.version>4.5.13</dependency.httpcomponents.version>
         <dependency.commons-lang3.version>3.4</dependency.commons-lang3.version>
         <dependency.json-lib.version>2.4</dependency.json-lib.version>
     </properties>
